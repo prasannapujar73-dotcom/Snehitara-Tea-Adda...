@@ -702,37 +702,32 @@
             NOW PLAYING KANNADA CLASSIC
           </div>
           <div id="trackTitle" class="kn-serif text-xs font-bold text-[#d97312] truncate">
-            ಹುಟ್ಟಿದರೆ ಕನ್ನಡ ನಾಡಲ್ಲಿ ಹುಟ್ಟಬೇಕು
+            Jotheyali Jothe Jotheyali • Geetha
           </div>
           <div class="h-1 bg-[#140a04] rounded-full mt-1.5 w-32 overflow-hidden">
-            <div id="trackProgress" class="h-full bg-[#d97312] rounded-full" style="width: 35%;"></div>
+            <div id="trackProgress" class="h-full bg-[#d97312] rounded-full" style="width: 100%;"></div>
           </div>
         </div>
       </div>
 
-      <div class="flex items-center gap-2 shrink-0">
-        <button type="button" onclick="prevTrack()" title="Previous Song"
-                class="w-8 h-8 rounded-full flex items-center justify-center text-[#cbb49a] hover:text-white active:scale-90 transition cursor-pointer">
-          ⏮
-        </button>
+      <div class="flex items-center shrink-0">
         <button type="button" id="playPauseBtn" onclick="togglePlay()" title="Play / Pause"
                 class="w-11 h-11 rounded-full bg-[#f3e5c8] text-[#1d1007] flex items-center justify-center text-base font-black shadow-md active:scale-90 transition cursor-pointer">
           ▶
-        </button>
-        <button type="button" onclick="nextTrack()" title="Next Song"
-                class="w-8 h-8 rounded-full flex items-center justify-center text-[#cbb49a] hover:text-white active:scale-90 transition cursor-pointer">
-          ⏭
-        </button>
-        <button type="button" onclick="shareAngadi()" title="Share"
-                class="w-8 h-8 rounded-full flex items-center justify-center text-[#cbb49a] hover:text-white active:scale-90 transition cursor-pointer">
-          ↗
         </button>
       </div>
     </div>
   </div>
 
-  <!-- Hidden HTML Audio Element for Real Kannada Songs Streaming -->
-  <audio id="kannadaAudioPlayer" preload="auto"></audio>
+  <!-- Audio source for the sticky music player -->
+  <audio id="kannadaAudioPlayer" preload="none">
+    <source src="./jotheyali-jothe-jotheyali.m4a" type="audio/mp4">
+  </audio>
+  <div id="youtubePlayerShell" class="fixed bottom-24 left-1/2 -translate-x-1/2 z-40 hidden">
+    <a id="youtubeFallback" href="https://www.youtube.com/watch?v=8HbwsAOfoRY" target="_blank" rel="noopener noreferrer" class="hidden rounded-lg bg-[#241409] px-3 py-2 text-center text-xs font-bold text-[#f3e5c8]">
+      YouTube ನಲ್ಲಿ ಹಾಡು ಕೇಳಿ ↗
+    </a>
+  </div>
 
   <!-- =====================================================================
        MODAL: DAILY NEWSPAPER & HERITAGE STORY
@@ -1180,27 +1175,17 @@
     }
 
     /* ==========================================================
-       6. STICKY BOTTOM AUDIO PLAYER FUNCTIONS (WITH REAL KANNADA SONGS)
+       6. STICKY BOTTOM AUDIO PLAYER FUNCTIONS (WITH A KANNADA SONG)
     ========================================================== */
     let isPlaying = false;
-    const tracksList = [
-      { 
-        title: "ಹುಟ್ಟಿದರೆ ಕನ್ನಡ ನಾಡಲ್ಲಿ ಹುಟ್ಟಬೇಕು • Dr. Rajkumar", 
-        prog: "25%",
-        url: "https://upload.wikimedia.org/wikipedia/commons/b/b2/Huttidare_Kannada_Naadalli_-_Dr.Rajkumar_%28Sample%29.ogg"
-      },
-      { 
-        title: "ನಾದಮಯ ಈ ಲೋಕವೆಲ್ಲ • S.P. Balasubrahmanyam", 
-        prog: "50%",
-        url: "https://upload.wikimedia.org/wikipedia/commons/3/3d/Naadamaya_Ee_Lokavella_-_Jeevana_Chaitra_%28Sample%29.ogg" 
-      },
-      { 
-        title: "ಮುಂಗಾರು ಮಳೆಯೇ • Sonu Nigam", 
-        prog: "75%",
-        url: "https://upload.wikimedia.org/wikipedia/commons/e/e3/Mungaru_Maleye_-_Title_Track_%28Sample%29.ogg" 
-      }
-    ];
-    let currentTrackIdx = 0;
+    const currentTrack = {
+      youtubeFallbackUrl: "https://www.youtube.com/watch?v=8HbwsAOfoRY"
+    };
+    const audioPlayer = document.getElementById('kannadaAudioPlayer');
+
+    audioPlayer.addEventListener('error', () => {
+      handleAudioPlaybackError(audioPlayer.error);
+    });
 
     function togglePlay() {
       isPlaying = !isPlaying;
@@ -1213,13 +1198,7 @@
         disc.classList.remove('vinyl-paused');
         showToast('▶ ಕನ್ನಡ ಹಾಡು ನುಡಿಸಲಾಗುತ್ತಿದೆ (Now Playing)');
         
-        if (player) {
-          player.src = tracksList[currentTrackIdx].url;
-          player.play().catch(err => {
-            console.log("Audio playback blocked or stream fallback:", err);
-            showToast('🎵 ರೇಡಿಯೋ ಆರ್ಗನ್ ಮೆಲೊಡಿ ಆನ್ ಮಾಡಲಾಗಿದೆ');
-          });
-        }
+        playCurrentTrack();
       } else {
         btn.textContent = '▶';
         disc.classList.add('vinyl-paused');
@@ -1230,51 +1209,25 @@
       }
     }
 
-    function prevTrack() {
-      currentTrackIdx = (currentTrackIdx - 1 + tracksList.length) % tracksList.length;
-      updateTrackMeta();
-      showToast('⏮ ಹಿಂದಿನ ಹಾಡು: ' + tracksList[currentTrackIdx].title.split('•')[0]);
-      if (isPlaying) {
-        const player = document.getElementById('kannadaAudioPlayer');
-        if (player) {
-          player.src = tracksList[currentTrackIdx].url;
-          player.play().catch(e => {});
-        }
-      }
+    function playCurrentTrack() {
+      const youtubeShell = document.getElementById('youtubePlayerShell');
+
+      youtubeShell.classList.add('hidden');
+      document.getElementById('youtubeFallback').classList.add('hidden');
+      audioPlayer.play().catch(handleAudioPlaybackError);
     }
 
-    function nextTrack() {
-      currentTrackIdx = (currentTrackIdx + 1) % tracksList.length;
-      updateTrackMeta();
-      showToast('⏭ ಮುಂದಿನ ಹಾಡು: ' + tracksList[currentTrackIdx].title.split('•')[0]);
-      if (isPlaying) {
-        const player = document.getElementById('kannadaAudioPlayer');
-        if (player) {
-          player.src = tracksList[currentTrackIdx].url;
-          player.play().catch(e => {});
-        }
-      }
-    }
+    function handleAudioPlaybackError(error) {
+      if (!isPlaying) return;
 
-    function updateTrackMeta() {
-      const t = tracksList[currentTrackIdx];
-      document.getElementById('trackTitle').textContent = t.title;
-      document.getElementById('trackProgress').style.width = t.prog;
-    }
-
-    function shareAngadi() {
-      const text = "ಸ್ನೇಹಿತರ ಕೂಟ ಚಹಾ ಅಡ್ಡಾ • The Original Social Network since 1982. ಬನ್ನಿ ಚಹಾ ಕುಡಿಯೋಣ!";
-      try {
-        if (navigator.clipboard && navigator.clipboard.writeText) {
-          navigator.clipboard.writeText(text).then(() => {
-            showToast('🔗 ಅಂಗಡಿಯ ಲಿಂಕ್ ಕಾಪಿ ಆಗಿದೆ!');
-          }).catch(() => fallbackCopyText(text));
-        } else {
-          fallbackCopyText(text);
-        }
-      } catch (e) {
-        fallbackCopyText(text);
-      }
+      console.error("Audio playback failed:", error);
+      isPlaying = false;
+      document.getElementById('playPauseBtn').textContent = '▶';
+      document.getElementById('vinylDisc').classList.add('vinyl-paused');
+      document.getElementById('youtubeFallback').href = currentTrack.youtubeFallbackUrl;
+      document.getElementById('youtubePlayerShell').classList.remove('hidden');
+      document.getElementById('youtubeFallback').classList.remove('hidden');
+      showToast('⚠️ ಹಾಡು ಪ್ಲೇ ಆಗಲಿಲ್ಲ. YouTube ಆಯ್ಕೆ ಬಳಸಿ.');
     }
 
     /* ==========================================================
@@ -1387,6 +1340,7 @@
       selectBeverage(0, false);
       renderBill();
     });
+
   </script>
 </body>
 </html>
