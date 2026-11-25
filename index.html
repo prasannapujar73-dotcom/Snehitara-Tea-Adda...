@@ -1,0 +1,1392 @@
+<!DOCTYPE html>
+<html lang="kn">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>ಸ್ನೇಹಿತರ ಕೂಟ ಚಹಾ ಅಡ್ಡಾ • The Original Social Network</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Kannada:wght@400;500;600;700;800&family=Noto+Serif+Kannada:wght@600;700;900&family=Playfair+Display:ital,wght@0,600;1,500&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-dark: #1d1007;
+      --bg-glow: #3a1f0b;
+      --card-surface: rgba(43, 25, 13, 0.72);
+      --card-inner: rgba(28, 15, 7, 0.85);
+      --border-warm: rgba(232, 168, 92, 0.18);
+      --amber-bright: #e07a16;
+      --cream-text: #f3e5c8;
+      --gold-sub: #d48938;
+      --muted-tan: #a88d73;
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      background-image:
+        radial-gradient(circle at 50% 10%, rgba(168, 88, 22, 0.35) 0%, rgba(29, 16, 7, 0.96) 65%),
+        radial-gradient(rgba(243, 229, 200, 0.06) 1px, transparent 1px);
+      background-size: 100% 100%, 18px 18px;
+      color: var(--cream-text);
+      font-family: 'Noto Sans Kannada', 'Plus Jakarta Sans', sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+      transition: filter 0.4s ease, background-image 0.4s ease;
+    }
+
+    body.lamp-off {
+      background-image:
+        radial-gradient(circle at 50% 10%, rgba(70, 35, 10, 0.22) 0%, rgba(14, 7, 3, 0.99) 65%),
+        radial-gradient(rgba(243, 229, 200, 0.03) 1px, transparent 1px);
+    }
+
+    .kn-serif { font-family: 'Noto Serif Kannada', serif; }
+    .en-serif { font-family: 'Playfair Display', serif; }
+
+    /* Rain Canvas */
+    #rainCanvas {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 45;
+      opacity: 0;
+      transition: opacity 0.4s ease;
+    }
+    #rainCanvas.active { opacity: 0.75; }
+
+    .angadi-card {
+      background: var(--card-surface);
+      border: 1px solid var(--border-warm);
+      backdrop-filter: blur(14px);
+      box-shadow: 0 16px 35px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    }
+
+    .angadi-pill {
+      background: var(--card-inner);
+      border: 1px solid var(--border-warm);
+    }
+
+    .active-orange {
+      background: linear-gradient(135deg, #e07a16 0%, #b8470b 100%) !important;
+      color: #1d1007 !important;
+      font-weight: 800;
+      border-color: #f3e5c8 !important;
+    }
+
+    /* Ribbed Cutting Chai Glass Animation CSS */
+    .chai-glass-wrapper {
+      position: relative;
+      width: 140px;
+      height: 190px;
+      margin: 0 auto;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .chai-glass {
+      position: absolute;
+      bottom: 0;
+      left: 20px;
+      width: 100px;
+      height: 155px;
+      background: linear-gradient(90deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.03) 50%, rgba(255,255,255,0.15) 100%);
+      border-left: 3px solid rgba(255,255,255,0.35);
+      border-right: 3px solid rgba(255,255,255,0.25);
+      border-bottom: 5px solid rgba(255,255,255,0.4);
+      border-radius: 0 0 16px 16px;
+      overflow: hidden;
+      box-shadow: 0 15px 35px rgba(0,0,0,0.6), inset 0 0 15px rgba(255,255,255,0.1);
+      transform: perspective(300px) rotateX(4deg);
+    }
+
+    .glass-ridge {
+      position: absolute;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: rgba(255,255,255,0.18);
+      pointer-events: none;
+    }
+
+    .tea-liquid {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 72%;
+      background: linear-gradient(180deg, #df7e16 0%, #a84c0b 65%, #692b05 100%);
+      transition: background 0.5s ease;
+    }
+
+    .tea-foam {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 10px;
+      background: #f4dfba;
+      opacity: 0.9;
+      background-image: radial-gradient(circle, #fff 2px, transparent 3px);
+      background-size: 8px 8px;
+    }
+
+    .pour-stream {
+      position: absolute;
+      top: -25px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 6px;
+      height: 0px;
+      background: linear-gradient(180deg, #f39c12, #d35400);
+      border-radius: 99px;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .pour-stream.pouring {
+      animation: pourDown 0.4s ease forwards;
+    }
+
+    @keyframes pourDown {
+      0% { height: 0px; opacity: 1; }
+      50% { height: 110px; opacity: 1; }
+      100% { height: 0px; opacity: 0; }
+    }
+
+    .steam-group {
+      position: absolute;
+      top: -15px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 12px;
+      pointer-events: none;
+    }
+
+    .steam-wisp {
+      width: 6px;
+      height: 35px;
+      background: linear-gradient(0deg, rgba(255,255,255,0.28), transparent);
+      border-radius: 99px;
+      filter: blur(3px);
+      animation: riseSteam 2.2s infinite ease-in-out;
+    }
+
+    .steam-wisp:nth-child(2) { animation-delay: 0.7s; height: 42px; }
+    .steam-wisp:nth-child(3) { animation-delay: 1.4s; height: 30px; }
+
+    @keyframes riseSteam {
+      0% { transform: translateY(0) scaleX(1); opacity: 0; }
+      30% { opacity: 0.6; }
+      100% { transform: translateY(-50px) scaleX(2.2); opacity: 0; }
+    }
+
+    .brew-bounce {
+      animation: bounceGlass 0.5s ease;
+    }
+
+    @keyframes bounceGlass {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.06) rotate(-1deg); }
+    }
+
+    /* Vinyl Spin Animation */
+    @keyframes spinVinyl {
+      to { transform: rotate(360deg); }
+    }
+    .vinyl-spin {
+      animation: spinVinyl 3.5s linear infinite;
+    }
+    .vinyl-paused {
+      animation-play-state: paused;
+    }
+
+    /* Toast Notification */
+    #toast {
+      position: fixed;
+      bottom: 85px;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: #2b180c;
+      border: 1.5px solid #e07a16;
+      color: #f3e5c8;
+      padding: 9px 20px;
+      border-radius: 99px;
+      font-size: 12px;
+      font-weight: 800;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.75);
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      z-index: 100;
+      white-space: nowrap;
+    }
+    #toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+  </style>
+</head>
+<body class="selection:bg-orange-500 selection:text-white">
+
+  <!-- Rain Canvas Overlay -->
+  <canvas id="rainCanvas"></canvas>
+
+  <!-- Floating Toast Notification -->
+  <div id="toast">☕ ಕಟಿಂಗ್ ಚಹಾ ಸಿದ್ಧವಾಗಿದೆ!</div>
+
+  <!-- Main Container -->
+  <main class="max-w-md mx-auto px-4 py-6 pb-28 space-y-6">
+
+    <!-- =====================================================================
+         SECTION 1: SHOP HEADER & CONTROLS (RESTORED AT TOP)
+    ===================================================================== -->
+    <header class="text-center space-y-3">
+      <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full angadi-pill text-left">
+        <span class="text-amber-400 text-sm">✨</span>
+        <span class="text-[10px] font-bold tracking-wider text-[#e08934] uppercase leading-tight">
+          ಸ್ನೇಹಿತರ ಕೂಟ ಚಹಾ ಅಡ್ಡಾ • THE ORIGINAL SOCIAL NETWORK
+        </span>
+      </div>
+
+      <h1 class="kn-serif text-4xl sm:text-[42px] font-black tracking-tight leading-tight">
+        <span class="text-[#f3e5c8]">ಸ್ನೇಹಿತರ ಕೂಟ</span>
+        <span class="text-[#df740c]"> ಚಹಾ ಅಡ್ಡಾ</span>
+      </h1>
+
+      <p class="en-serif italic text-sm text-[#c7ae91] max-w-xs mx-auto leading-relaxed">
+        The original social network since 1982
+      </p>
+
+      <div class="pt-1">
+        <div class="inline-block px-5 py-1.5 rounded-full angadi-pill text-[11px] font-bold tracking-widest text-[#d8c3a5]">
+          ಬೆಂಗಳೂರು • ೧೯೮೨ (BENGALURU • SINCE 1982)
+        </div>
+      </div>
+
+      <!-- 5 Interactive Controls: ದೀಪ, ಮಳೆ, ೦೧, ೦೨, ೦೩ -->
+      <div class="flex items-center justify-center gap-2 pt-2">
+        <button type="button" id="lampBtn" onclick="toggleLamp()"
+                class="angadi-pill active-orange px-3.5 py-1.5 rounded-full text-xs flex items-center gap-1.5 cursor-pointer">
+          <span>💡</span> <span>ದೀಪ</span>
+        </button>
+
+        <button type="button" id="rainBtn" onclick="toggleRain()"
+                class="angadi-pill px-3.5 py-1.5 rounded-full text-xs text-[#cbb49a] flex items-center gap-1.5 cursor-pointer">
+          <span>🌧️</span> <span>ಮಳೆ</span>
+        </button>
+
+        <button type="button" onclick="selectPreset(0, this)"
+                class="preset-dot angadi-pill w-9 h-8 rounded-full text-xs text-[#cbb49a] flex items-center justify-center cursor-pointer">
+          ೦೧
+        </button>
+        <button type="button" onclick="selectPreset(1, this)"
+                class="preset-dot angadi-pill w-9 h-8 rounded-full text-xs text-[#cbb49a] flex items-center justify-center cursor-pointer">
+          ೦೨
+        </button>
+        <button type="button" onclick="selectPreset(2, this)"
+                class="preset-dot angadi-pill w-9 h-8 rounded-full text-xs text-[#cbb49a] flex items-center justify-center cursor-pointer">
+          ೦೩
+        </button>
+      </div>
+    </header>
+
+    <!-- =====================================================================
+         SECTION 2: MEMORY ARCHIVES CAROUSEL
+    ===================================================================== -->
+    <section class="angadi-card rounded-[26px] p-5 space-y-4">
+      <div class="flex items-center justify-between border-b border-orange-200/10 pb-3.5">
+        <div class="flex items-center gap-3">
+          <div class="w-8 h-9 rounded-lg bg-[#69360e] border border-amber-500/30 flex items-center justify-center text-amber-400 font-serif text-xl font-black">
+            ❞
+          </div>
+          <div>
+            <div class="text-[10px] font-bold tracking-[0.2em] text-[#a88d73] uppercase">
+              MEMORY ARCHIVES •
+            </div>
+            <div class="text-xs font-semibold text-[#cbb49a]">ಅಡ್ಡಾದ ನೆನಪು</div>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-1.5">
+          <div class="w-10 h-11 rounded-full bg-[#2b180c] border border-orange-200/15 flex flex-col items-center justify-center text-[10px] leading-tight text-[#cbb49a] font-bold">
+            <span id="memCounter">03</span>
+            <span class="opacity-40">/</span>
+            <span>07</span>
+          </div>
+          <button type="button" onclick="copyCurrentMemory()" title="Copy Memory"
+                  class="w-9 h-9 rounded-full bg-[#2b180c] border border-orange-200/15 flex items-center justify-center text-[#cbb49a] hover:text-amber-400 active:scale-90 transition cursor-pointer">
+            📋
+          </button>
+          <button type="button" onclick="prevMemory()" title="Previous"
+                  class="w-9 h-9 rounded-full bg-[#2b180c] border border-orange-200/15 flex items-center justify-center text-[#cbb49a] hover:text-amber-400 active:scale-90 transition cursor-pointer">
+            ‹
+          </button>
+          <button type="button" onclick="nextMemory()" title="Next"
+                  class="w-9 h-9 rounded-full bg-[#2b180c] border border-orange-200/15 flex items-center justify-center text-[#cbb49a] hover:text-amber-400 active:scale-90 transition cursor-pointer">
+            ›
+          </button>
+        </div>
+      </div>
+
+      <div class="space-y-3 py-1">
+        <p class="kn-serif text-lg sm:text-xl font-bold text-[#f4e6cc] leading-relaxed" id="memKn">
+          “ಜೇಬಿನಲ್ಲಿ ಹತ್ತು ರೂಪಾಯಿ ಇದ್ದರೂ, ಗೆಳೆಯರ ಜೊತೆ ಚಹಾ ಕುಡಿಯುವಾಗ ನಾವೇ ಶ್ರೀಮಂತರು.”
+        </p>
+        <p class="en-serif italic text-xs sm:text-sm text-[#d4822a] leading-relaxed" id="memEn">
+          — Even with just ten rupees in our pockets, sharing chai with friends made us feel like kings.
+        </p>
+      </div>
+
+      <div class="flex items-center justify-between pt-1">
+        <span class="text-xs text-[#b89f85]" id="memCategory">ಕಾಲೇಜು ದಿನಗಳು (College Memories)</span>
+        <span class="px-3 py-1 rounded-full bg-[#45240b] border border-amber-500/30 text-[10px] font-extrabold tracking-wider text-[#e08934]" id="memTag">
+          #FRIENDSHIP
+        </span>
+      </div>
+
+      <div class="h-1.5 bg-[#1b0e06] rounded-full overflow-hidden">
+        <div id="memProgress" class="h-full bg-[#d97312] rounded-full transition-all duration-300" style="width: 43%;"></div>
+      </div>
+    </section>
+
+    <!-- =====================================================================
+         SECTION 3: TEA & COFFEE MENU (PLACED ABOVE THE TEA CUP ANIMATION)
+    ===================================================================== -->
+    <section class="angadi-card rounded-[28px] p-5 space-y-4">
+      <div class="flex items-start justify-between gap-2">
+        <div>
+          <div class="text-[10px] font-bold tracking-[0.2em] text-[#a88d73] uppercase">
+            TEA & COFFEE COUNTER • ಚಹಾ ಮತ್ತು ಕಾಫಿ ಮೆನು
+          </div>
+          <h2 class="kn-serif text-2xl font-black text-[#f3e5c8] mt-0.5">
+            ನಮ್ಮ ಅಂಗಡಿಯ ಚಹಾ ಮೆನು
+          </h2>
+        </div>
+        <div class="flex items-center gap-2 mt-1">
+          <span class="px-2.5 py-1 rounded-full bg-red-950/70 border border-red-500/30 text-[9px] font-extrabold text-amber-300">
+            +₹3 MILK HIKE
+          </span>
+          <button type="button" onclick="replayCurrentBrew()"
+                  class="w-8 h-8 rounded-xl bg-[#f3e5c8] text-[#1d1007] flex items-center justify-center text-sm shadow-md active:scale-90 transition cursor-pointer"
+                  title="Pour Again">
+            🫖
+          </button>
+        </div>
+      </div>
+
+      <!-- Tea & Coffee Only Menu List (Syncs directly with Glass Animation & Billing) -->
+      <div class="space-y-2.5" id="menuList">
+        <div onclick="selectBeverage(0, true); addBeverageToBill(0)"
+             class="menu-card p-3.5 rounded-2xl bg-[#251409]/90 border border-[#e07a16] flex items-center justify-between cursor-pointer transition">
+          <div class="flex items-center gap-3">
+            <div class="w-11 h-11 rounded-xl bg-[#160b04] flex items-center justify-center text-xl">☕</div>
+            <div>
+              <div class="kn-serif font-bold text-sm text-[#f3e5c8]">KT (ಕಟಿಂಗ್ ಚಹಾ)</div>
+              <div class="text-[11px] text-[#9c8269]">ಕಡಕ್ ಡಿಕಾಕ್ಷನ್ & ಗಟ್ಟಿ ಹಾಲಿನ ಕಟಿಂಗ್ ಟೀ (ಕ್ಲಿಕ್ ಮಾಡಿ ಬಿಲ್‌ಗೆ ಸೇರಿಸಿ)</div>
+            </div>
+          </div>
+          <div class="text-right">
+            <div class="text-xs font-extrabold text-[#d97312]">₹15</div>
+            <div class="text-[10px] line-through text-[#8c7258]">₹12</div>
+          </div>
+        </div>
+
+        <div onclick="selectBeverage(1, true); addBeverageToBill(1)"
+             class="menu-card p-3.5 rounded-2xl bg-[#251409]/90 border border-orange-200/10 flex items-center justify-between cursor-pointer transition">
+          <div class="flex items-center gap-3">
+            <div class="w-11 h-11 rounded-xl bg-[#160b04] flex items-center justify-center text-xl">🫚</div>
+            <div>
+              <div class="kn-serif font-bold text-sm text-[#f3e5c8]">ಶುಂಠಿ ಚಹಾ (Sunti Tea)</div>
+              <div class="text-[11px] text-[#9c8269]">ಜಜ್ಜಿದ ಹಸಿ ಶುಂಠಿ ಹಾಕಿ ಕುದಿಸಿದ ಬಿಸಿ ಚಹಾ</div>
+            </div>
+          </div>
+          <div class="text-right">
+            <div class="text-xs font-extrabold text-[#d97312]">₹15</div>
+            <div class="text-[10px] line-through text-[#8c7258]">₹12</div>
+          </div>
+        </div>
+
+        <div onclick="selectBeverage(2, true); addBeverageToBill(2)"
+             class="menu-card p-3.5 rounded-2xl bg-[#251409]/90 border border-orange-200/10 flex items-center justify-between cursor-pointer transition">
+          <div class="flex items-center gap-3">
+            <div class="w-11 h-11 rounded-xl bg-[#160b04] flex items-center justify-center text-xl">🌿</div>
+            <div>
+              <div class="kn-serif font-bold text-sm text-[#f3e5c8]">ಕಡಕ್ ಮಸಾಲಾ ಚಹಾ</div>
+              <div class="text-[11px] text-[#9c8269]">ಏಲಕ್ಕಿ, ಲವಂಗ ಮತ್ತು ದಾಲ್ಚಿನ್ನಿ ಘಮದ ಚಹಾ</div>
+            </div>
+          </div>
+          <div class="text-right">
+            <div class="text-xs font-extrabold text-[#d97312]">₹18</div>
+            <div class="text-[10px] line-through text-[#8c7258]">₹15</div>
+          </div>
+        </div>
+
+        <div onclick="selectBeverage(3, true); addBeverageToBill(3)"
+             class="menu-card p-3.5 rounded-2xl bg-[#251409]/90 border border-orange-200/10 flex items-center justify-between cursor-pointer transition">
+          <div class="flex items-center gap-3">
+            <div class="w-11 h-11 rounded-xl bg-[#160b04] flex items-center justify-center text-xl">🥂</div>
+            <div>
+              <div class="kn-serif font-bold text-sm text-[#f3e5c8]">ಬೈ-ಟು ಚಹಾ (By-Two)</div>
+              <div class="text-[11px] text-[#9c8269]">ಗೆಳೆಯರಿಬ್ಬರು ಹಂಚಿ ಕುಡಿಯುವ ಸ್ಪೆಷಲ್ ಚಹಾ</div>
+            </div>
+          </div>
+          <div class="text-right">
+            <div class="text-xs font-extrabold text-[#d97312]">₹16</div>
+            <div class="text-[10px] line-through text-[#8c7258]">₹12</div>
+          </div>
+        </div>
+
+        <div onclick="selectBeverage(4, true); addBeverageToBill(4)"
+             class="menu-card p-3.5 rounded-2xl bg-[#251409]/90 border border-orange-200/10 flex items-center justify-between cursor-pointer transition">
+          <div class="flex items-center gap-3">
+            <div class="w-11 h-11 rounded-xl bg-[#160b04] flex items-center justify-center text-xl">🍯</div>
+            <div>
+              <div class="kn-serif font-bold text-sm text-[#f3e5c8]">ಬೆಲ್ಲದ ಚಹಾ (Jaggery Tea)</div>
+              <div class="text-[11px] text-[#9c8269]">ಸಾವಯವ ಬೆಲ್ಲ ಮತ್ತು ಏಲಕ್ಕಿ ಬೆರೆತ ಚಹಾ</div>
+            </div>
+          </div>
+          <div class="text-right">
+            <div class="text-xs font-extrabold text-[#d97312]">₹18</div>
+            <div class="text-[10px] line-through text-[#8c7258]">₹15</div>
+          </div>
+        </div>
+
+        <div onclick="selectBeverage(5, true); addBeverageToBill(5)"
+             class="menu-card p-3.5 rounded-2xl bg-[#251409]/90 border border-orange-200/10 flex items-center justify-between cursor-pointer transition">
+          <div class="flex items-center gap-3">
+            <div class="w-11 h-11 rounded-xl bg-[#160b04] flex items-center justify-center text-xl">🤎</div>
+            <div>
+              <div class="kn-serif font-bold text-sm text-[#f3e5c8]">ಸಾದಾ ಕಾಫಿ (Milk Coffee)</div>
+              <div class="text-[11px] text-[#9c8269]">ಬಿಸಿ ಹಾಲಿನಲ್ಲಿ ಬೆರೆಸಿದ ಸುವಾಸನೆಯ ಕಾಫಿ</div>
+            </div>
+          </div>
+          <div class="text-right">
+            <div class="text-xs font-extrabold text-[#d97312]">₹18</div>
+            <div class="text-[10px] line-through text-[#8c7258]">₹15</div>
+          </div>
+        </div>
+
+        <div onclick="selectBeverage(6, true); addBeverageToBill(6)"
+             class="menu-card p-3.5 rounded-2xl bg-[#251409]/90 border border-orange-200/10 flex items-center justify-between cursor-pointer transition">
+          <div class="flex items-center gap-3">
+            <div class="w-11 h-11 rounded-xl bg-[#160b04] flex items-center justify-center text-xl">🫘</div>
+            <div>
+              <div class="kn-serif font-bold text-sm text-[#f3e5c8]">ಡಿಗ್ರಿ ಫಿಲ್ಟರ್ ಕಾಫಿ</div>
+              <div class="text-[11px] text-[#9c8269]">ಚಿಕ್ಕಮಗಳೂರಿನ ನೊರೆ ನೊರೆ ಫಿಲ್ಟರ್ ಕಾಫಿ</div>
+            </div>
+          </div>
+          <div class="text-right">
+            <div class="text-xs font-extrabold text-[#d97312]">₹20</div>
+            <div class="text-[10px] line-through text-[#8c7258]">₹15</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =====================================================================
+         SECTION 4: CUTTING CHAI GLASS CONTAINER & BILLING COUNTER
+    ===================================================================== -->
+    <section class="angadi-card rounded-[28px] p-6 text-center space-y-4">
+      <div class="text-[10px] font-bold tracking-[0.2em] text-[#a88d73] uppercase">
+        LIVE COUNTER • ಲೈವ್ ಕೌಂಟರ್
+      </div>
+
+      <!-- Ribbed Cutting Chai Glass Container -->
+      <div id="glassContainer" class="chai-glass-wrapper" onclick="addBeverageToBill(currentBevIdx)">
+        <div id="pourStream" class="pour-stream"></div>
+        <div class="steam-group">
+          <div class="steam-wisp"></div>
+          <div class="steam-wisp"></div>
+          <div class="steam-wisp"></div>
+        </div>
+        <div class="chai-glass">
+          <div class="glass-ridge" style="top: 22%;"></div>
+          <div class="glass-ridge" style="top: 45%;"></div>
+          <div class="glass-ridge" style="top: 68%;"></div>
+          <div id="teaLiquid" class="tea-liquid">
+            <div id="teaFoam" class="tea-foam"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="text-xs font-bold text-[#e08934]" id="activeBrewLabel">
+        [ KT (ಕಟಿಂಗ್ ಚಹಾ) • ₹15 • ಲೋಟದ ಮೇಲೆ ಕ್ಲಿಕ್ ಮಾಡಿ ಬಿಲ್‌ಗೆ ಸೇರಿಸಿ ]
+      </div>
+      <p class="text-xs text-[#cbb49a] max-w-xs mx-auto" id="teaDescLine">
+        ಗಟ್ಟಿ ಹಾಲು ಮತ್ತು ಕಡಕ್ ಡಿಕಾಕ್ಷನ್ ಬೆರೆತ ಅಸಲಿ ಕಟಿಂಗ್ ಚಹಾ (KT).
+      </p>
+    </section>
+
+    <!-- =====================================================================
+         SECTION 5: CULTURAL HERITAGE & MEMORY CARDS
+    ===================================================================== -->
+    <section class="space-y-4">
+      <div class="text-center space-y-1">
+        <div class="text-[10px] font-bold tracking-[0.2em] text-[#a88d73] uppercase">
+          CULTURAL HERITAGE • ವರುಪರೆ
+        </div>
+        <h2 class="kn-serif text-2xl font-black text-[#f3e5c8]">
+          ಅಡ್ಡಾದ ಅಮೂಲ್ಯ ನೆನಪುಗಳು
+        </h2>
+        <p class="text-xs text-[#b89f85]">
+          The stories, whispers, wooden planks, and newspaper clips that defined generations.
+        </p>
+      </div>
+
+      <!-- Heritage Card #01 -->
+      <div class="angadi-card rounded-[22px] p-4 space-y-2.5">
+        <div class="flex items-center justify-between">
+          <div class="w-9 h-9 rounded-xl bg-[#3a1f0b] border border-amber-500/30 flex items-center justify-center text-amber-400">📋</div>
+          <span class="text-[10px] font-black text-[#d48938]">#01</span>
+        </div>
+        <div class="kn-serif font-black text-base text-[#f3e5c8]">ಇಂದು ನಗದು, ನಾಳೆ ಸಾಲ</div>
+        <div class="text-[11px] font-bold text-[#d48938]">Strictly Cash Today, Credit Tomorrow</div>
+        <p class="text-xs text-[#cbb49a] leading-relaxed">
+          ಪ್ರತಿಯೊಂದು ಹಳೆಯ ಚಹಾ ಅಂಗಡಿಯಲ್ಲೂ ಕಪ್ಪು ಬೋರ್ಡ್ ಮೇಲೆ ಬಿಳಿ ಸೀಮೆಸುಣ್ಣದಿಂದ ಬರೆದ ಈ ಮಾತು ನಮಗೆ ಎಂದಿಗೂ ಸಾಲ ಸಿಗಲ್ಲ ಅನ್ನೋದರ ಸಿಹಿ ಎಚ್ಚರಿಕೆ!
+        </p>
+        <button type="button" onclick="openHeritageModal(0)" class="text-xs font-bold text-amber-400 hover:underline pt-1 inline-flex items-center gap-1 cursor-pointer">
+          ವಿವರ ಓದಲು ಕ್ಲಿಕ್ ಮಾಡಿ →
+        </button>
+      </div>
+
+      <!-- Heritage Card #02 -->
+      <div class="angadi-card rounded-[22px] p-4 space-y-2.5">
+        <div class="flex items-center justify-between">
+          <div class="w-9 h-9 rounded-xl bg-[#3a1f0b] border border-amber-500/30 flex items-center justify-center text-amber-400">📻</div>
+          <span class="text-[10px] font-black text-[#d48938]">#02</span>
+        </div>
+        <div class="kn-serif font-black text-base text-[#f3e5c8]">ಫಿಲಿಪ್ಸ್ ರೇಡಿಯೋ & ಹಳೆಯ ಹಾಡುಗಳು</div>
+        <div class="text-[11px] font-bold text-[#d48938]">The Transistor Radio Melodies</div>
+        <p class="text-xs text-[#cbb49a] leading-relaxed">
+          ಮರದ ಗೂಡಿನಲ್ಲಿ ಇರಿಸಿದ ಹಳೆಯ ರೇಡಿಯೋದಲ್ಲಿ ಮಧುರವಾದ ಕನ್ನಡ ಹಾಡುಗಳು ಮತ್ತು ಬೆಳಗಿನ ವಾರ್ತೆಗಳು ಗಂಟೆಗಟ್ಟಲೆ ಮೊಳಗುತ್ತಿದ್ದವು.
+        </p>
+        <button type="button" onclick="openHeritageModal(1)" class="text-xs font-bold text-amber-400 hover:underline pt-1 inline-flex items-center gap-1 cursor-pointer">
+          ವಿವರ ಓದಲು ಕ್ಲಿಕ್ ಮಾಡಿ →
+        </button>
+      </div>
+
+      <!-- Heritage Card #03 -->
+      <div class="angadi-card rounded-[22px] p-4 space-y-2.5">
+        <div class="flex items-center justify-between">
+          <div class="w-9 h-9 rounded-xl bg-[#3a1f0b] border border-amber-500/30 flex items-center justify-center text-amber-400">📰</div>
+          <span class="text-[10px] font-black text-[#d48938]">#03</span>
+        </div>
+        <div class="kn-serif font-black text-base text-[#f3e5c8]">ಮುಂಜಾನೆಯ ದಿನಪತ್ರಿಕೆ ಕ್ಲಿಪ್</div>
+        <div class="text-[11px] font-bold text-[#d48938]">The Wooden-Clipped Morning Newspaper</div>
+        <p class="text-xs text-[#cbb49a] leading-relaxed">
+          ಮರದ ಕ್ಲಿಪ್ ಹಾಕಿದ ದಿನಪತ್ರಿಕೆಯ ಮುಖಪುಟ ಓದಲು ಸ್ನೇಹಿತರ ನಡುವೆ ನಡೆಯುತ್ತಿದ್ದ ಮುದ್ದಾದ ಪೈಪೋಟಿ.
+        </p>
+        <button type="button" onclick="openHeritageModal(2)" class="text-xs font-bold text-amber-400 hover:underline pt-1 inline-flex items-center gap-1 cursor-pointer">
+          ವಿವರ ಓದಲು ಕ್ಲಿಕ್ ಮಾಡಿ →
+        </button>
+      </div>
+
+      <!-- Heritage Card #04 -->
+      <div class="angadi-card rounded-[22px] p-4 space-y-2.5">
+        <div class="flex items-center justify-between">
+          <div class="w-9 h-9 rounded-xl bg-[#3a1f0b] border border-amber-500/30 flex items-center justify-center text-amber-400">☕</div>
+          <span class="text-[10px] font-black text-[#d48938]">#04</span>
+        </div>
+        <div class="kn-serif font-black text-base text-[#f3e5c8]">ಕಬ್ಬಿಣದ ಗ್ಲಾಸ್ ಕ್ಯಾರಿಯರ್</div>
+        <div class="text-[11px] font-bold text-[#d48938]">The Wire Mesh Glass Stand</div>
+        <p class="text-xs text-[#cbb49a] leading-relaxed">
+          ಆರು ಗಾಜಿನ ಲೋಟಗಳನ್ನು ಹಿಡಿದು ಒಟ್ಟಿಗೆ ಬಿಸಿಬಿಸಿ ಚಹಾ ತರುವ ಆ ಕಬ್ಬಿಣದ ಸ್ಟ್ಯಾಂಡಿನ ಘಣಘಣ ಸದ್ದು.
+        </p>
+        <button type="button" onclick="openHeritageModal(3)" class="text-xs font-bold text-amber-400 hover:underline pt-1 inline-flex items-center gap-1 cursor-pointer">
+          ವಿವರ ಓದಲು ಕ್ಲಿಕ್ ಮಾಡಿ →
+        </button>
+      </div>
+
+      <!-- Daily Newspaper Read Button -->
+      <button type="button" onclick="openNewspaper()"
+              class="w-full py-3.5 rounded-2xl bg-[#f3e5c8] text-[#1d1007] font-black text-xs tracking-wider uppercase shadow-xl flex items-center justify-center gap-2 active:scale-95 transition cursor-pointer">
+        <span>📰</span> ಮುಂಜಾನೆಯ ದಿನಪತ್ರಿಕೆ ಓದಿ (Daily Newspaper)
+      </button>
+
+      <!-- Tribute Counter -->
+      <div class="angadi-card rounded-2xl p-4 flex items-center justify-between">
+        <div class="text-xs text-[#cbb49a] font-bold">ಈ ನೆನಪುಗಳಿಗೆ ನಿಮ್ಮ ನಮನ ಸಲ್ಲಿಸಿ:</div>
+        <button type="button" onclick="addTribute()"
+                class="px-4 py-2 rounded-2xl bg-[#2b180c] border border-amber-500/30 text-amber-400 font-extrabold text-xs flex items-center gap-1.5 active:scale-90 transition cursor-pointer">
+          <span>♡</span> <span id="tributeCount">142</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- =====================================================================
+         SECTION 6: BILLING COUNTER (PLACED AT THE LAST BEFORE FOOTER)
+    ===================================================================== -->
+    <section class="angadi-card rounded-[28px] p-6 space-y-4">
+      <div class="flex items-center justify-between">
+        <div>
+          <div class="text-[10px] font-extrabold text-[#d48938] tracking-widest uppercase">CHAI BILLING COUNTER</div>
+          <div class="kn-serif text-lg font-black text-[#f3e5c8]">ಚಹಾ ಬಿಲ್ ರಸೀದಿ ಕೌಂಟರ್</div>
+        </div>
+        <button type="button" onclick="clearBill()" class="text-[11px] text-red-400 hover:underline cursor-pointer">
+          ಖಾಲಿ ಮಾಡಿ (Clear)
+        </button>
+      </div>
+
+      <div class="space-y-2 text-xs divide-y divide-[#1d1007]/10 bg-[#1d1007]/80 p-4 rounded-2xl border border-orange-200/10" id="billItemsList">
+        <div class="text-[#5c3c24] italic text-center py-2">
+          ಮೇಲಿನ ಮೆನುವಿನಿಂದ ಚಹಾ ಆರಿಸಿ ಅಥವಾ ಲೋಟದ ಮೇಲೆ ಒತ್ತಿ.
+        </div>
+      </div>
+
+      <div class="pt-2 flex items-center justify-between font-extrabold text-sm px-1">
+        <span class="text-[#cbb49a]">ಒಟ್ಟು ಲೋಟಗಳು (<span id="billItemCount">0 ಲೋಟ</span>):</span>
+        <span id="billGrandTotal" class="text-amber-400 text-base">₹0</span>
+      </div>
+
+      <!-- Legendary Tagline Exclusively at Billing Counter (At the Last) -->
+      <div class="text-center py-2 px-3 rounded-xl bg-[#2e180b] border border-amber-500/30">
+        <span class="kn-serif text-xs sm:text-sm font-bold text-amber-300">
+          “ಗ್ರಾಹಕರೇ ದೇವರು, ದೇವರು ಯಾವತ್ತೂ ಸಾಲ ಮಾಡಲ್ಲ!”
+        </span>
+      </div>
+
+      <button type="button" onclick="payCashBill()"
+              class="w-full py-3.5 rounded-xl bg-gradient-to-r from-[#d97312] to-[#b8470b] text-[#1c0d04] font-black text-sm tracking-wide shadow-lg active:scale-95 transition cursor-pointer">
+        💸 ಬಿಲ್ ಪಾವತಿಸಿ (Pay Cash)
+      </button>
+
+      <!-- Matte Banni / Farewell Section -->
+      <div id="matteBanniBanner" class="p-4 rounded-2xl bg-[#2b180c] border border-amber-500/20 text-center space-y-1.5 transition-all duration-300">
+        <div class="kn-serif text-lg font-black text-[#f3e5c8]">ಮತ್ತೆ ಬನ್ನಿ • ಮತ್ತೆ ಸಿಗೋಣ</div>
+        <p id="matteBanniSubtext" class="text-xs text-[#cbb49a] leading-relaxed">
+          ಸ್ನೇಹಿತರ ಕೂಟದ ಹರಟೆ, ಬಿಸಿ ಚಹಾ ಕಪ್ - ಯಾವಾಗ ಬೇಕಾದರೂ ಬನ್ನಿ, ಅಡ್ಡಾ ಸದಾ ತೆರೆದಿರುತ್ತದೆ!
+        </p>
+      </div>
+    </section>
+
+    <!-- Keyboard Shortcuts Card -->
+    <div class="angadi-card rounded-2xl p-4 space-y-2 text-xs">
+      <div class="font-black text-[#d48938] tracking-widest uppercase text-[10px]">⌨️ ಕೀಬೋರ್ಡ್ ಶಾರ್ಟ್‌ಕಟ್ಸ್:</div>
+      <div class="grid grid-cols-1 gap-1.5 text-[#cbb49a]">
+        <div><code class="px-1.5 py-0.5 rounded bg-[#1d1007] text-amber-300">Space</code> : ಚಹಾ ಸುರಿ (Pour / Refresh)</div>
+        <div><code class="px-1.5 py-0.5 rounded bg-[#1d1007] text-amber-300">C</code> : ಕೌಂಟರ್ ಶಬ್ದ (Sound Effect)</div>
+      </div>
+    </div>
+
+    <!-- Footer Quote (At the absolute end) -->
+    <footer class="text-center space-y-2 pt-2 pb-6">
+      <p class="kn-serif text-sm font-bold text-[#df740c]">
+        “ಚಹಾ ಅನ್ನೋದು ಬರಿ ಪಾನೀಯವಲ್ಲ ಅದೊಂದು ಭಾವನೆ.”
+      </p>
+      <p class="text-[10px] tracking-widest text-[#8a725b] uppercase font-bold">
+        — ಕಟ್ಟಿ ಪುರಾಣ • DEDICATED TO THE EVERGREEN SPIRIT OF KARNATAKA'S CHAI ADDAS
+      </p>
+    </footer>
+
+  </main>
+
+  <!-- =====================================================================
+       STICKY FLOATING BOTTOM AUDIO PLAYER (WITH REAL KANNADA SONGS)
+  ===================================================================== -->
+  <div class="fixed bottom-3 left-1/2 -translate-x-1/2 w-[calc(100%-24px)] max-w-md z-50">
+    <div class="rounded-3xl bg-[#241409]/95 border border-orange-200/20 backdrop-blur-xl px-4 py-3 shadow-2xl flex items-center justify-between gap-3">
+      <div class="flex items-center gap-3 min-w-0">
+        <div class="w-11 h-11 rounded-2xl bg-[#3d2210] border border-amber-500/30 flex items-center justify-center shrink-0">
+          <div id="vinylDisc" class="w-7 h-7 rounded-full border-2 border-amber-400/80 flex items-center justify-center vinyl-spin vinyl-paused">
+            <div class="w-2 h-2 rounded-full bg-amber-300"></div>
+          </div>
+        </div>
+        <div class="min-w-0">
+          <div class="text-[9px] font-extrabold tracking-[0.2em] text-[#9c8269] uppercase">
+            NOW PLAYING KANNADA CLASSIC
+          </div>
+          <div id="trackTitle" class="kn-serif text-xs font-bold text-[#d97312] truncate">
+            ಹುಟ್ಟಿದರೆ ಕನ್ನಡ ನಾಡಲ್ಲಿ ಹುಟ್ಟಬೇಕು
+          </div>
+          <div class="h-1 bg-[#140a04] rounded-full mt-1.5 w-32 overflow-hidden">
+            <div id="trackProgress" class="h-full bg-[#d97312] rounded-full" style="width: 35%;"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2 shrink-0">
+        <button type="button" onclick="prevTrack()" title="Previous Song"
+                class="w-8 h-8 rounded-full flex items-center justify-center text-[#cbb49a] hover:text-white active:scale-90 transition cursor-pointer">
+          ⏮
+        </button>
+        <button type="button" id="playPauseBtn" onclick="togglePlay()" title="Play / Pause"
+                class="w-11 h-11 rounded-full bg-[#f3e5c8] text-[#1d1007] flex items-center justify-center text-base font-black shadow-md active:scale-90 transition cursor-pointer">
+          ▶
+        </button>
+        <button type="button" onclick="nextTrack()" title="Next Song"
+                class="w-8 h-8 rounded-full flex items-center justify-center text-[#cbb49a] hover:text-white active:scale-90 transition cursor-pointer">
+          ⏭
+        </button>
+        <button type="button" onclick="shareAngadi()" title="Share"
+                class="w-8 h-8 rounded-full flex items-center justify-center text-[#cbb49a] hover:text-white active:scale-90 transition cursor-pointer">
+          ↗
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Hidden HTML Audio Element for Real Kannada Songs Streaming -->
+  <audio id="kannadaAudioPlayer" preload="auto"></audio>
+
+  <!-- =====================================================================
+       MODAL: DAILY NEWSPAPER & HERITAGE STORY
+  ===================================================================== -->
+  <div id="infoModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-[70] hidden items-center justify-center p-4">
+    <div class="max-w-sm w-full rounded-3xl bg-[#f3e5c8] text-[#1d1007] p-5 space-y-3 shadow-2xl">
+      <div class="flex justify-between items-center border-b-2 border-[#1d1007] pb-2">
+        <span class="text-[10px] font-black tracking-widest uppercase" id="modalKicker">ಸಂಯುಕ್ತ ಕರ್ನಾಟಕ • ೧೯೮೨</span>
+        <button type="button" onclick="closeModal()" class="text-sm font-black px-2 py-0.5 rounded bg-[#1d1007] text-[#f3e5c8]">✕</button>
+      </div>
+      <h3 class="kn-serif text-xl font-black" id="modalHeading">ಮುಂಜಾನೆಯ ಚಹಾ ಮತ್ತು ದಿನಪತ್ರಿಕೆ</h3>
+      <p class="text-xs leading-relaxed text-[#3a2212]" id="modalBody">
+        ಬೆಳಿಗ್ಗೆ ೭ ಗಂಟೆಗೆ ಚಹಾ ಅಂಗಡಿಯ ಮರದ ಬೆಂಚ್ ಮೇಲೆ ಕುಳಿತು, ಬಿಸಿ ಶುಂಠಿ ಚಹಾ ಹೀರುತ್ತಾ ಪೇಪರ್ ಓದುವುದೇ ಒಂದು ಸಂಭ್ರಮ.
+      </p>
+    </div>
+  </div>
+
+  <script>
+    /* ==========================================================
+       1. GLOBAL STATE & AMBIENCE FUNCTIONS (LAMP, RAIN, AUDIO)
+    ========================================================== */
+    let isRaining = false;
+    let isLampOn = true;
+    let audioCtx = null;
+    let rainBufferNode = null;
+    let rainGainNode = null;
+
+    function getAudio() {
+      if (!audioCtx) {
+        const AC = window.AudioContext || window.webkitAudioContext;
+        if (AC) audioCtx = new AC();
+      }
+      if (audioCtx && audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+      return audioCtx;
+    }
+
+    function toggleLamp() {
+      isLampOn = !isLampOn;
+      const btn = document.getElementById('lampBtn');
+      if (isLampOn) {
+        document.body.classList.remove('lamp-off');
+        btn.classList.add('active-orange');
+        showToast('💡 ದೀಪ ಹತ್ತಿಸಲಾಗಿದೆ');
+      } else {
+        document.body.classList.add('lamp-off');
+        btn.classList.remove('active-orange');
+        showToast('🌙 ದೀಪ ಆರಿಸಲಾಗಿದೆ');
+      }
+    }
+
+    /* Monsoon Rain Canvas & Audio Engine */
+    const rainCanvas = document.getElementById('rainCanvas');
+    const rCtx = rainCanvas ? rainCanvas.getContext('2d') : null;
+    let drops = [];
+
+    function initRainCanvas() {
+      if (!rainCanvas) return;
+      rainCanvas.width = window.innerWidth;
+      rainCanvas.height = window.innerHeight;
+      drops = [];
+      for (let i = 0; i < 120; i++) {
+        drops.push({
+          x: Math.random() * rainCanvas.width,
+          y: Math.random() * rainCanvas.height,
+          len: 12 + Math.random() * 18,
+          speed: 7 + Math.random() * 8
+        });
+      }
+    }
+
+    window.addEventListener('resize', initRainCanvas);
+    initRainCanvas();
+
+    function animateRain() {
+      if (rCtx && rainCanvas) {
+        rCtx.clearRect(0, 0, rainCanvas.width, rainCanvas.height);
+        if (isRaining) {
+          rCtx.strokeStyle = 'rgba(186, 230, 253, 0.45)';
+          rCtx.lineWidth = 1.3;
+          rCtx.beginPath();
+          for (let d of drops) {
+            rCtx.moveTo(d.x, d.y);
+            rCtx.lineTo(d.x - 1.2, d.y + d.len);
+            d.y += d.speed;
+            d.x -= 0.6;
+            if (d.y > rainCanvas.height) {
+              d.y = -20;
+              d.x = Math.random() * rainCanvas.width;
+            }
+          }
+          rCtx.stroke();
+        }
+      }
+      requestAnimationFrame(animateRain);
+    }
+    requestAnimationFrame(animateRain);
+
+    function toggleRain() {
+      isRaining = !isRaining;
+      const canvas = document.getElementById('rainCanvas');
+      const btn = document.getElementById('rainBtn');
+      const ctx = getAudio();
+
+      if (isRaining) {
+        if (canvas) canvas.classList.add('active');
+        if (btn) btn.classList.add('active-orange');
+        showToast('🌧️ ಮಳೆ ಶುರುವಾಗಿದೆ');
+
+        if (ctx) {
+          try {
+            const bufferSize = 2 * ctx.sampleRate;
+            const noiseBuffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+            const output = noiseBuffer.getChannelData(0);
+            let lastOut = 0.0;
+            for (let i = 0; i < bufferSize; i++) {
+              const white = Math.random() * 2 - 1;
+              output[i] = (lastOut + (0.03 * white)) / 1.03;
+              lastOut = output[i];
+              output[i] *= 2.0;
+            }
+
+            rainBufferNode = ctx.createBufferSource();
+            rainBufferNode.buffer = noiseBuffer;
+            rainBufferNode.loop = true;
+
+            const filter = ctx.createBiquadFilter();
+            filter.type = 'bandpass';
+            filter.frequency.value = 900;
+            filter.Q.value = 0.6;
+
+            rainGainNode = ctx.createGain();
+            rainGainNode.gain.setValueAtTime(0.01, ctx.currentTime);
+            rainGainNode.gain.linearRampToValueAtTime(0.18, ctx.currentTime + 0.6);
+
+            rainBufferNode.connect(filter);
+            filter.connect(rainGainNode);
+            rainGainNode.connect(ctx.destination);
+            rainBufferNode.start();
+          } catch (e) {
+            console.log("Audio rain error:", e);
+          }
+        }
+      } else {
+        if (canvas) canvas.classList.remove('active');
+        if (btn) btn.classList.remove('active-orange');
+        showToast('☀️ ಮಳೆ ನಿಂತಿದೆ');
+
+        if (rainBufferNode && rainGainNode && ctx) {
+          try {
+            rainGainNode.gain.linearRampToValueAtTime(0.0001, ctx.currentTime + 0.3);
+            setTimeout(() => {
+              rainBufferNode.stop();
+              rainBufferNode = null;
+            }, 350);
+          } catch (e) {
+            rainBufferNode = null;
+          }
+        }
+      }
+    }
+
+    function selectPreset(idx, el) {
+      document.querySelectorAll('.preset-dot').forEach(d => d.classList.remove('active-orange'));
+      el.classList.add('active-orange');
+      showToast('☕ ಪ್ರಿಸೆಟ್ ೦' + (idx + 1) + ' ಆಯ್ಕೆ ಮಾಡಲಾಗಿದೆ');
+    }
+
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      if (!t) return;
+      t.textContent = msg;
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 2200);
+    }
+
+    function fallbackCopyText(text) {
+      const el = document.createElement('textarea');
+      el.value = text;
+      document.body.appendChild(el);
+      el.select();
+      try {
+        document.execCommand('copy');
+        showToast('🔗 ಲಿಂಕ್ ಕಾಪಿ ಆಗಿದೆ!');
+      } catch (err) {
+        showToast('⚠️ ಕಾಪಿ ಮಾಡಲು ಆಗಲಿಲ್ಲ');
+      }
+      document.body.removeChild(el);
+    }
+
+    /* ==========================================================
+       2. MEMORY ARCHIVES CAROUSEL DATA & FUNCTIONS
+    ========================================================== */
+    const memories = [
+      {
+        kn: "“ಜೇಬಿನಲ್ಲಿ ಹತ್ತು ರೂಪಾಯಿ ಇದ್ದರೂ, ಗೆಳೆಯರ ಜೊತೆ ಚಹಾ ಕುಡಿಯುವಾಗ ನಾವೇ ಶ್ರೀಮಂತರು.”",
+        en: "— Even with just ten rupees in our pockets, sharing chai with friends made us feel like kings.",
+        cat: "ಕಾಲೇಜು ದಿನಗಳು (College Memories)",
+        tag: "#FRIENDSHIP"
+      },
+      {
+        kn: "“ಸಂಜೆ ಮಳೆಯಲ್ಲಿ ಬಿಸಿ ಸಮೋಸ ಜೊತೆ ಕಟಿಂಗ್ ಚಹಾ - ಬೆಂಗಳೂರಿನ ಅತಿ ಸುಂದರ ಕ್ಷಣ.”",
+        en: "— Evening rain with hot samosa and cutting chai - Bengaluru's most beautiful moment.",
+        cat: "ಮಳೆಯ ಸಂಜೆ (Monsoon Adda)",
+        tag: "#BENGALURU"
+      },
+      {
+        kn: "“ಮಾತು ಮುಗಿಯದ ಅಡ್ಡಾ, ಖಾಲಿ ಗ್ಲಾಸ್ ಮತ್ತು ಮುಂಜಾನೆಯ ದಿನಪತ್ರಿಕೆ.”",
+        en: "— Endless adda chats, empty glasses, and the morning newspaper.",
+        cat: "ಶಾಶ್ವತ ನೆನಪುಗಳು (Evergreen Adda)",
+        tag: "#NOSTALGIA"
+      },
+      {
+        kn: "“ಪರೀಕ್ಷೆ ಹತ್ತಿರ ಬಂದಾಗ ನೋಟ್ಸ್ ಗಿಂತ ಚಹಾ ಅಂಗಡಿಯ ಚರ್ಚೆಯೇ ಹೆಚ್ಚು.”",
+        en: "— When exams are close, chai shop discussions matter more than notes.",
+        cat: "ಪರೀಕ್ಷೆ ಟೆನ್ಷನ್ (Exam Days)",
+        tag: "#STUDENTS"
+      },
+      {
+        kn: "“ಒಂದು ಕಪ್ ಚಹಾ ಸಾಕು, ಹಳೆಯ ಗೆಳೆಯರನ್ನೆಲ್ಲ ಮತ್ತೆ ಒಂದೆಡೆ ಸೇರಿಸಲು.”",
+        en: "— A single cup of chai is enough to bring old friends back together.",
+        cat: "ಗೆಳೆತನ (Reunion)",
+        tag: "#MEMORIES"
+      },
+      {
+        kn: "“ಕಪ್ಪು ಬೋರ್ಡ್ ಮೇಲಿನ ‘ಇಂದು ನಗದು, ನಾಳೆ ಸಾಲ’ ನಮ್ಮ ಬಾಲ್ಯದ ಅತಿ ದೊಡ್ಡ ಪಾಠ.”",
+        en: "— The black board's 'Cash Today, Credit Tomorrow' was our biggest childhood lesson.",
+        cat: "ಅಂಗಡಿ ಪುರಾಣ (Angadi Tales)",
+        tag: "#HERITAGE"
+      },
+      {
+        kn: "“ಚಹಾ ಕೇವಲ ಕುಡಿಯುವ ಪದಾರ್ಥವಲ್ಲ, ಅದು ನಮ್ಮ ದಿನದ ಆರಂಭದ ಶಕ್ತಿ.”",
+        en: "— Chai is not just a drink, it's the energy that starts our day.",
+        cat: "ದಿನಚರಿ (Daily Ritual)",
+        tag: "#CHAI"
+      }
+    ];
+
+    let memIndex = 0;
+
+    function renderMemory() {
+      const m = memories[memIndex];
+      document.getElementById('memCounter').textContent = String(memIndex + 1).padStart(2, '0');
+      document.getElementById('memKn').textContent = m.kn;
+      document.getElementById('memEn').textContent = m.en;
+      document.getElementById('memCategory').textContent = m.cat;
+      document.getElementById('memTag').textContent = m.tag;
+      const pct = ((memIndex + 1) / memories.length) * 100;
+      document.getElementById('memProgress').style.width = pct + '%';
+    }
+
+    function nextMemory() {
+      memIndex = (memIndex + 1) % memories.length;
+      renderMemory();
+      showToast('📖 ನೆನಪು ಬದಲಾಯಿಸಲಾಗಿದೆ');
+    }
+
+    function prevMemory() {
+      memIndex = (memIndex - 1 + memories.length) % memories.length;
+      renderMemory();
+      showToast('📖 ಹಿಂದಿನ ನೆನಪು');
+    }
+
+    function copyCurrentMemory() {
+      const m = memories[memIndex];
+      const text = `${m.kn}\n${m.en}\n— ಸ್ನೇಹಿತರ ಕೂಟ ಚಹಾ ಅಡ್ಡಾ`;
+      try {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(text).then(() => {
+            showToast('📋 ನೆನಪು ಕಾಪಿ ಆಗಿದೆ!');
+          }).catch(() => fallbackCopyText(text));
+        } else {
+          fallbackCopyText(text);
+        }
+      } catch (e) {
+        fallbackCopyText(text);
+      }
+    }
+
+    /* ==========================================================
+       3. MENU & DYNAMIC GLASS ANIMATION DATA & FUNCTIONS
+    ========================================================== */
+    const beverages = [
+      {
+        name: "KT (ಕಟಿಂಗ್ ಚಹಾ)",
+        price: 15,
+        desc: "ಗಟ್ಟಿ ಹಾಲು ಮತ್ತು ಕಡಕ್ ಡಿಕಾಕ್ಷನ್ ಬೆರೆತ ಅಸಲಿ ಕಟಿಂಗ್ ಚಹಾ (KT).",
+        liquidGrad: "linear-gradient(180deg, #df7e16 0%, #a84c0b 65%, #692b05 100%)",
+        foamColor: "#f4dfba"
+      },
+      {
+        name: "ಶುಂಠಿ ಚಹಾ (Sunti Tea)",
+        price: 15,
+        desc: "ಜಜ್ಜಿದ ಹಸಿ ಶುಂಠಿ ಹಾಕಿ ಕುದಿಸಿದ ಬಿಸಿ ಚಹಾ.",
+        liquidGrad: "linear-gradient(180deg, #e68a25 0%, #b85710 65%, #7a3204 100%)",
+        foamColor: "#f7e5c8"
+      },
+      {
+        name: "ಕಡಕ್ ಮಸಾಲಾ ಚಹಾ",
+        price: 18,
+        desc: "ಏಲಕ್ಕಿ, ಲವಂಗ ಮತ್ತು ದಾಲ್ಚಿನ್ನಿ ಘಮದ ಚಹಾ.",
+        liquidGrad: "linear-gradient(180deg, #c7670f 0%, #8f3b06 100%)",
+        foamColor: "#edd4b2"
+      },
+      {
+        name: "ಬೈ-ಟು ಚಹಾ (By-Two)",
+        price: 16,
+        desc: "ಗೆಳೆಯರಿಬ್ಬರು ಹಂಚಿ ಕುಡಿಯುವ ಸ್ಪೆಷಲ್ ಚಹಾ.",
+        liquidGrad: "linear-gradient(180deg, #e0821b 0%, #994409 100%)",
+        foamColor: "#f5e2c4"
+      },
+      {
+        name: "ಬೆಲ್ಲದ ಚಹಾ (Jaggery Tea)",
+        price: 18,
+        desc: "ಸಾವಯವ ಬೆಲ್ಲ ಮತ್ತು ಏಲಕ್ಕಿ ಬೆರೆತ ಚಹಾ.",
+        liquidGrad: "linear-gradient(180deg, #bf5b10 0%, #7d3305 100%)",
+        foamColor: "#e8c9a0"
+      },
+      {
+        name: "ಸಾದಾ ಕಾಫಿ (Milk Coffee)",
+        price: 18,
+        desc: "ಬಿಸಿ ಹಾಲಿನಲ್ಲಿ ಬೆರೆಸಿದ ಸುವಾಸನೆಯ ಕಾಫಿ.",
+        liquidGrad: "linear-gradient(180deg, #9c592a 0%, #633313 100%)",
+        foamColor: "#faebd7"
+      },
+      {
+        name: "ಡಿಗ್ರಿ ಫಿಲ್ಟರ್ ಕಾಫಿ",
+        price: 20,
+        desc: "ಚಿಕ್ಕಮಗಳೂರಿನ ನೊರೆ ನೊರೆ ಫಿಲ್ಟರ್ ಕಾಫಿ.",
+        liquidGrad: "linear-gradient(180deg, #783d15 0%, #3d1c07 100%)",
+        foamColor: "#edd5b7"
+      }
+    ];
+
+    let currentBevIdx = 0;
+
+    function selectBeverage(idx, scrollToGlass = false) {
+      currentBevIdx = idx;
+      const bev = beverages[idx];
+
+      const rows = document.querySelectorAll('#menuList > div');
+      rows.forEach((r, i) => {
+        if (i === idx) {
+          r.style.borderColor = '#e07a16';
+          r.style.background = 'rgba(45, 22, 10, 0.95)';
+        } else {
+          r.style.borderColor = 'rgba(232, 168, 92, 0.1)';
+          r.style.background = 'rgba(37, 20, 9, 0.9)';
+        }
+      });
+
+      const liq = document.getElementById('teaLiquid');
+      const foam = document.getElementById('teaFoam');
+      const lbl = document.getElementById('activeBrewLabel');
+      const desc = document.getElementById('teaDescLine');
+      const stream = document.getElementById('pourStream');
+      const glass = document.getElementById('glassContainer');
+
+      if (liq) liq.style.background = bev.liquidGrad;
+      if (foam) foam.style.backgroundColor = bev.foamColor;
+      if (lbl) lbl.textContent = `[ ${bev.name} • ₹${bev.price} • ಲೋಟದ ಮೇಲೆ ಕ್ಲಿಕ್ ಮಾಡಿ ]`;
+      if (desc) desc.textContent = bev.desc;
+
+      if (stream) {
+        stream.style.background = bev.liquidGrad;
+        stream.classList.add('pouring');
+        setTimeout(() => stream.classList.remove('pouring'), 400);
+      }
+
+      if (glass) {
+        glass.classList.add('brew-bounce');
+        setTimeout(() => glass.classList.remove('brew-bounce'), 550);
+      }
+
+      showToast(`🫖 ${bev.name} ತಯಾರಾಗಿದೆ`);
+
+      if (scrollToGlass && glass) {
+        glass.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }
+
+    function replayCurrentBrew() {
+      selectBeverage(currentBevIdx, false);
+    }
+
+    /* ==========================================================
+       4. HERITAGE MODALS & NEWSPAPER DATA & FUNCTIONS
+    ========================================================== */
+    const heritageDetails = [
+      {
+        kicker: "ಕಪ್ಪು ಬೋರ್ಡ್ ಪುರಾಣ • ೧೯೮೨",
+        heading: "ಇಂದು ನಗದು, ನಾಳೆ ಸಾಲ (Strictly Cash Today, Credit Tomorrow)",
+        body: "ಪ್ರತಿಯೊಂದು ಹಳೆಯ ಚಹಾ ಅಂಗಡಿಯಲ್ಲೂ ಕಪ್ಪು ಬೋರ್ಡ್ ಮೇಲೆ ಬಿಳಿ ಸೀಮೆಸುಣ್ಣದಿಂದ ಬರೆದ ಈ ಮಾತು ನಮಗೆ ಎಂದಿಗೂ ಸಾಲ ಸಿಗಲ್ಲ ಅನ್ನೋದರ ಸಿಹಿ ಎಚ್ಚರಿಕೆ! ಸ್ನೇಹಿತರ ನಡುವೆ ಯಾರ ಹತ್ರನೂ ಚೇಂಜ್ ಇಲ್ಲ ಅಂದಾಗ ಈ ಬೋರ್ಡ್ ಕಣ್ಣಿಗೆ ಬೀಳೋದು ಖಚಿತ."
+      },
+      {
+        kicker: "ಮರದ ಗೂಡಿನ ರೇಡಿಯೋ • ಬೆಳಗಿನ ರಾಗ",
+        heading: "ಫಿಲಿಪ್ಸ್ ರೇಡಿಯೋ & ಹಳೆಯ ಹಾಡುಗಳು (Transistor Melodies)",
+        body: "ಮರದ ಗೂಡಿನಲ್ಲಿ ಇರಿಸಿದ ಹಳೆಯ ರೇಡಿಯೋದಲ್ಲಿ ಮಧುರವಾದ ಕನ್ನಡ ಹಾಡುಗಳು ಮತ್ತು ಬೆಳಗಿನ ವಾರ್ತೆಗಳು ಗಂಟೆಗಟ್ಟಲೆ ಮೊಳಗುತ್ತಿದ್ದವು. ಚಹಾ ಅಂಗಡಿಯ ಮಾಲೀಕರು ಬೆಳಿಗ್ಗೆ ೬ ಗಂಟೆಗೆ ರೇಡಿಯೋ ಆನ್ ಮಾಡಿ ಅಂಗಡಿ ತೆರೆಯುವುದೇ ಒಂದು ಸಂಪ್ರದಾಯ."
+      },
+      {
+        kicker: "ಸಂಯುಕ್ತ ಕರ್ನಾಟಕ • ಮುಖಪುಟ",
+        heading: "ಮುಂಜಾನೆಯ ದಿನಪತ್ರಿಕೆ ಕ್ಲಿಪ್ (The Wooden-Clipped Morning Newspaper)",
+        body: "ಮರದ ಕ್ಲಿಪ್ ಹಾಕಿದ ದಿನಪತ್ರಿಕೆಯ ಮುಖಪುಟ ಓದಲು ಸ್ನೇಹಿತರ ನಡುವೆ ನಡೆಯುತ್ತಿದ್ದ ಮುದ್ದಾದ ಪೈಪೋಟಿ. ರಾಜಕೀಯ ಚರ್ಚೆಗಳು, ಕ್ರಿಕೆಟ್ ಸ್ಕೋರ್ ಮತ್ತು ಜಾಹೀರಾತುಗಳನ್ನು ಒಟ್ಟಿಗೆ ಓದುತ್ತಾ ಚಹಾ ಹೀರುವುದು ಅಡ್ಡಾದ ಅತಿ ದೊಡ್ಡ ಖುಷಿ."
+      },
+      {
+        kicker: "ಕಬ್ಬಿಣದ ಸ್ಟ್ಯಾಂಡ್ • ಗ್ಲಾಸ್ ಕ್ಯಾರಿಯರ್",
+        heading: "ಕಬ್ಬಿಣದ ಗ್ಲಾಸ್ ಕ್ಯಾರಿಯರ್ (The Wire Mesh Glass Stand)",
+        body: "ಆರು ಗಾಜಿನ ಲೋಟಗಳನ್ನು ಹಿಡಿದು ಒಟ್ಟಿಗೆ ಬಿಸಿಬಿಸಿ ಚಹಾ ತರುವ ಆ ಕಬ್ಬಿಣದ ಸ್ಟ್ಯಾಂಡಿನ ಘಣಘಣ ಸದ್ದು ಕೇಳಿದರೆ ಸಾಕು, ಅಡ್ಡಾದಲ್ಲಿ ಹೊಸ ಚೈತನ್ಯ ಮೂಡುತ್ತಿತ್ತು."
+      }
+    ];
+
+    function openHeritageModal(idx) {
+      const h = heritageDetails[idx];
+      document.getElementById('modalKicker').textContent = h.kicker;
+      document.getElementById('modalHeading').textContent = h.heading;
+      document.getElementById('modalBody').textContent = h.body;
+      document.getElementById('infoModal').classList.remove('hidden');
+      document.getElementById('infoModal').classList.add('flex');
+    }
+
+    function closeModal() {
+      document.getElementById('infoModal').classList.remove('flex');
+      document.getElementById('infoModal').classList.add('hidden');
+    }
+
+    function openNewspaper() {
+      document.getElementById('modalKicker').textContent = "ವಿಜಯ ಕರ್ನಾಟಕ • ನಾಳಿನ ಮುಖಪುಟ";
+      document.getElementById('modalHeading').textContent = "ಕರ್ನಾಟಕ ವಿಶೇಷ ವಾರ್ತೆಗಳು (Tomorrow's Headlines)";
+      document.getElementById('modalBody').textContent =
+        "೧. ಬೆಂಗಳೂರು ಮೆಟ್ರೋ ಹಳೇ ಬಾಗಲೂರು ಮಾರ್ಗಕ್ಕೆ ಚಾಲನೆ!\n" +
+        "೨. ಕಾವೇರಿ ಜಲಾನಯನ ಪ್ರದೇಶದಲ್ಲಿ ಉತ್ತಮ ಮಳೆ ನಿರೀಕ್ಷೆ.\n" +
+        "೩. ಕನ್ನಡ ಸಾಹಿತ್ಯ ಪರಿಷತ್ ವತಿಯಿಂದ ನಾಳೆ ವಿಶೇಷ ಕವಿಗೋಷ್ಠಿ.\n" +
+        "೪. ಚಹಾ ಪ್ರಿಯರಿಗೆ ಗುಡ್ ನ್ಯೂಸ್: ಸ್ನೇಹಿತರ ಕೂಟ ಚಹಾ ಅಡ್ಡಾದಲ್ಲಿ ನಾಳೆ ಸ್ಪೆಷಲ್ ಮಸಾಲಾ ಟೀ ಉಚಿತ!\n" +
+        "೫. ಹಳೆಯ ಸ್ನೇಹಿತರ ಕೂಟ: ಬೆಂಗಳೂರಿನ ಅಡ್ಡಾಗಳಲ್ಲಿ ಸಂಭ್ರಮದ ವಾತಾವರಣ.";
+      document.getElementById('infoModal').classList.remove('hidden');
+      document.getElementById('infoModal').classList.add('flex');
+    }
+
+    let tributeCountVal = 142;
+    function addTribute() {
+      tributeCountVal++;
+      document.getElementById('tributeCount').textContent = tributeCountVal;
+      showToast('♡ ಈ ನೆನಪಿಗೆ ನಿಮ್ಮ ನಮನ ಸಲ್ಲಿಸಲಾಗಿದೆ');
+    }
+
+    /* ==========================================================
+       6. STICKY BOTTOM AUDIO PLAYER FUNCTIONS (WITH REAL KANNADA SONGS)
+    ========================================================== */
+    let isPlaying = false;
+    const tracksList = [
+      { 
+        title: "ಹುಟ್ಟಿದರೆ ಕನ್ನಡ ನಾಡಲ್ಲಿ ಹುಟ್ಟಬೇಕು • Dr. Rajkumar", 
+        prog: "25%",
+        url: "https://upload.wikimedia.org/wikipedia/commons/b/b2/Huttidare_Kannada_Naadalli_-_Dr.Rajkumar_%28Sample%29.ogg"
+      },
+      { 
+        title: "ನಾದಮಯ ಈ ಲೋಕವೆಲ್ಲ • S.P. Balasubrahmanyam", 
+        prog: "50%",
+        url: "https://upload.wikimedia.org/wikipedia/commons/3/3d/Naadamaya_Ee_Lokavella_-_Jeevana_Chaitra_%28Sample%29.ogg" 
+      },
+      { 
+        title: "ಮುಂಗಾರು ಮಳೆಯೇ • Sonu Nigam", 
+        prog: "75%",
+        url: "https://upload.wikimedia.org/wikipedia/commons/e/e3/Mungaru_Maleye_-_Title_Track_%28Sample%29.ogg" 
+      }
+    ];
+    let currentTrackIdx = 0;
+
+    function togglePlay() {
+      isPlaying = !isPlaying;
+      const btn = document.getElementById('playPauseBtn');
+      const disc = document.getElementById('vinylDisc');
+      const player = document.getElementById('kannadaAudioPlayer');
+      
+      if (isPlaying) {
+        btn.textContent = '⏸';
+        disc.classList.remove('vinyl-paused');
+        showToast('▶ ಕನ್ನಡ ಹಾಡು ನುಡಿಸಲಾಗುತ್ತಿದೆ (Now Playing)');
+        
+        if (player) {
+          player.src = tracksList[currentTrackIdx].url;
+          player.play().catch(err => {
+            console.log("Audio playback blocked or stream fallback:", err);
+            showToast('🎵 ರೇಡಿಯೋ ಆರ್ಗನ್ ಮೆಲೊಡಿ ಆನ್ ಮಾಡಲಾಗಿದೆ');
+          });
+        }
+      } else {
+        btn.textContent = '▶';
+        disc.classList.add('vinyl-paused');
+        showToast('⏸ ಹಾಡು ನಿಲ್ಲಿಸಲಾಗಿದೆ (Paused)');
+        if (player) {
+          player.pause();
+        }
+      }
+    }
+
+    function prevTrack() {
+      currentTrackIdx = (currentTrackIdx - 1 + tracksList.length) % tracksList.length;
+      updateTrackMeta();
+      showToast('⏮ ಹಿಂದಿನ ಹಾಡು: ' + tracksList[currentTrackIdx].title.split('•')[0]);
+      if (isPlaying) {
+        const player = document.getElementById('kannadaAudioPlayer');
+        if (player) {
+          player.src = tracksList[currentTrackIdx].url;
+          player.play().catch(e => {});
+        }
+      }
+    }
+
+    function nextTrack() {
+      currentTrackIdx = (currentTrackIdx + 1) % tracksList.length;
+      updateTrackMeta();
+      showToast('⏭ ಮುಂದಿನ ಹಾಡು: ' + tracksList[currentTrackIdx].title.split('•')[0]);
+      if (isPlaying) {
+        const player = document.getElementById('kannadaAudioPlayer');
+        if (player) {
+          player.src = tracksList[currentTrackIdx].url;
+          player.play().catch(e => {});
+        }
+      }
+    }
+
+    function updateTrackMeta() {
+      const t = tracksList[currentTrackIdx];
+      document.getElementById('trackTitle').textContent = t.title;
+      document.getElementById('trackProgress').style.width = t.prog;
+    }
+
+    function shareAngadi() {
+      const text = "ಸ್ನೇಹಿತರ ಕೂಟ ಚಹಾ ಅಡ್ಡಾ • The Original Social Network since 1982. ಬನ್ನಿ ಚಹಾ ಕುಡಿಯೋಣ!";
+      try {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(text).then(() => {
+            showToast('🔗 ಅಂಗಡಿಯ ಲಿಂಕ್ ಕಾಪಿ ಆಗಿದೆ!');
+          }).catch(() => fallbackCopyText(text));
+        } else {
+          fallbackCopyText(text);
+        }
+      } catch (e) {
+        fallbackCopyText(text);
+      }
+    }
+
+    /* ==========================================================
+       7. BILLING COUNTER DATA & FUNCTIONS
+    ========================================================== */
+    let billItems = [];
+
+    function addBeverageToBill(idx) {
+      const bev = beverages[idx];
+      const existing = billItems.find(item => item.name === bev.name);
+      if (existing) {
+        existing.qty++;
+      } else {
+        billItems.push({ name: bev.name, price: bev.price, qty: 1 });
+      }
+      renderBill();
+      showToast(`🧾 ${bev.name} ಬಿಲ್‌ಗೆ ಸೇರಿಸಲಾಗಿದೆ (₹${bev.price})`);
+    }
+
+    function changeQty(index, delta) {
+      billItems[index].qty += delta;
+      if (billItems[index].qty <= 0) {
+        billItems.splice(index, 1);
+      }
+      renderBill();
+    }
+
+    function clearBill() {
+      billItems = [];
+      renderBill();
+      showToast('🗑️ ಬಿಲ್ ಖಾಲಿ ಮಾಡಲಾಗಿದೆ');
+    }
+
+    function renderBill() {
+      const listContainer = document.getElementById('billItemsList');
+      const countEl = document.getElementById('billItemCount');
+      const totalEl = document.getElementById('billGrandTotal');
+
+      if (!listContainer || !countEl || !totalEl) return;
+
+      if (billItems.length === 0) {
+        listContainer.innerHTML = `
+          <div class="text-[#5c3c24] italic text-center py-2">
+            ಮೇಲಿನ ಮೆನುವಿನಿಂದ ಚಹಾ ಆರಿಸಿ ಅಥವಾ ಲೋಟದ ಮೇಲೆ ಒತ್ತಿ.
+          </div>
+        `;
+        countEl.textContent = "0 ಲೋಟ";
+        totalEl.textContent = "₹0";
+        return;
+      }
+
+      let html = '';
+      let totalQty = 0;
+      let grandTotal = 0;
+
+      billItems.forEach((item, idx) => {
+        totalQty += item.qty;
+        const itemTotal = item.price * item.qty;
+        grandTotal += itemTotal;
+
+        html += `
+          <div class="flex items-center justify-between border-b border-orange-200/10 pb-1.5">
+            <div class="truncate pr-2">
+              <span class="font-bold text-[#f3e5c8]">${item.name}</span>
+              <span class="text-[10px] text-[#cbb49a] ml-1">₹${item.price} × ${item.qty}</span>
+            </div>
+            <div class="flex items-center gap-2 shrink-0">
+              <span class="font-extrabold text-[#e08934]">₹${itemTotal}</span>
+              <div class="flex items-center bg-[#2b180c] border border-orange-200/20 text-[#f3e5c8] rounded px-2 py-0.5 text-xs gap-2">
+                <button type="button" onclick="changeQty(${idx}, -1)" class="cursor-pointer hover:text-amber-400 font-bold">−</button>
+                <span class="font-bold">${item.qty}</span>
+                <button type="button" onclick="changeQty(${idx}, 1)" class="cursor-pointer hover:text-amber-400 font-bold">+</button>
+              </div>
+            </div>
+          </div>
+        `;
+      });
+
+      listContainer.innerHTML = html;
+      countEl.textContent = totalQty + " ಲೋಟ";
+      totalEl.textContent = "₹" + grandTotal;
+    }
+
+    function payCashBill() {
+      if (billItems.length === 0) {
+        showToast('⚠️ ಬಿಲ್‌ನಲ್ಲಿ ಯಾವುದೇ ವಸ್ತುಗಳಿಲ್ಲ');
+        return;
+      }
+      const grand = billItems.reduce((acc, cur) => acc + (cur.price * cur.qty), 0);
+      showToast(`✅ ₹${grand} ನಗದು ಪಾವತಿಸಲಾಗಿದೆ. ಧನ್ಯವಾದಗಳು!`);
+      
+      const banner = document.getElementById('matteBanniBanner');
+      if (banner) {
+        banner.classList.add('scale-[1.02]');
+        setTimeout(() => banner.classList.remove('scale-[1.02]'), 350);
+      }
+
+      const subtext = document.getElementById('matteBanniSubtext');
+      if (subtext) {
+        subtext.textContent = `ನಗದು ಪಾವತಿ ಯಶಸ್ವಿ (₹${grand}). ಮತ್ತೆ ಬನ್ನಿ, ಸ್ನೇಹಿತರ ಜೊತೆ ಹರಟೆಹೊಡೆಯಲು ನಮ್ಮ ಅಂಗಡಿ ಸದಾ ತೆರೆದಿರುತ್ತದೆ!`;
+      }
+
+      billItems = [];
+      renderBill();
+    }
+
+    // Initialize Memory & Menu on DOM load
+    window.addEventListener('load', () => {
+      renderMemory();
+      selectBeverage(0, false);
+      renderBill();
+    });
+  </script>
+</body>
+</html>
